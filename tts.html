@@ -3,101 +3,77 @@
 <head>
   <meta charset="utf-8" />
   <title>Text → Speech</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    body{font-family:system-ui, Arial; max-width:720px; margin:40px auto; padding:0 16px}
-    textarea{width:100%; height:160px}
-    .row{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
-    button{padding:10px 16px; cursor:pointer}
-    #status{margin-top:8px; color:#666}
-    audio{width:100%; margin-top:16px}
+    body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:2rem;max-width:800px}
+    textarea{width:100%;height:180px}
+    .row{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}
+    button,select{padding:.6rem 1rem}
+    audio{width:100%;margin-top:14px}
   </style>
 </head>
 <body>
-  <h1>Text → Audio</h1>
-
-  <label>Text</label>
-  <textarea id="text" placeholder="Type something to synthesize..."></textarea>
-
+  <h1>Text → Speech</h1>
+  <textarea id="text" placeholder="Type or paste your text here..."></textarea>
   <div class="row">
-    <label for="voice">Voice:</label>
     <select id="voice">
-      <option value="alloy" selected>alloy</option>
+      <option value="alloy">alloy</option>
       <option value="verse">verse</option>
-      <option value="aria">aria</option>
+      <option value="bright">bright</option>
     </select>
-
-    <label for="format">Format:</label>
     <select id="format">
-      <option value="mp3" selected>mp3</option>
+      <option value="mp3">mp3</option>
       <option value="wav">wav</option>
     </select>
-
     <button id="go">Generate</button>
   </div>
-
   <div id="status"></div>
-
   <audio id="player" controls></audio>
-  <p><a id="download" href="#" download="tts-output.mp3" style="display:none">Download audio</a></p>
 
   <script>
-    // If you use a proxy (recommended), point to it:
-    const API_URL = "/api/tts"; 
-    // If you skip the proxy (NOT recommended), use your Render URL:
-    // const API_URL = "https://website-dcgu.onrender.com/tts";
+    // Render API endpoint
+    const API_URL = "https://website-dcgu.onrender.com/tts"; // <- your Render URL
 
-    const textEl = document.getElementById('text');
-    const voiceEl = document.getElementById('voice');
-    const formatEl = document.getElementById('format');
-    const goBtn = document.getElementById('go');
-    const statusEl = document.getElementById('status');
-    const player = document.getElementById('player');
-    const downloadLink = document.getElementById('download');
+    // ⚠️ For public use, DON'T hardcode secrets in the browser.
+    // If your API requires X-APP-KEY, use a proxy (we can add later).
+    const USE_KEY = false; // set true only for private testing
+    const APP_KEY = "my-super-token-123";
 
-    goBtn.addEventListener('click', async () => {
-      const text = textEl.value.trim();
-      if (!text) { alert("Please enter some text."); return; }
+    const el = (id) => document.getElementById(id);
+    el("go").onclick = async () => {
+      const text = el("text").value.trim();
+      if (!text) { alert("Enter some text"); return; }
 
-      statusEl.textContent = "Generating… (first request may be slow if server is cold)";
-      goBtn.disabled = true;
-      player.src = "";
-      downloadLink.style.display = 'none';
+      const voice = el("voice").value;
+      const format = el("format").value;
+
+      el("status").textContent = "Generating (first call may take ~30–50s on free Render)…";
+      const headers = { "Content-Type": "application/json" };
+      if (USE_KEY) headers["X-APP-KEY"] = APP_KEY;
 
       try {
         const res = await fetch(API_URL, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-            // DO NOT put secrets like X-APP-KEY here on a public site.
-          },
-          body: JSON.stringify({
-            text,
-            voice: voiceEl.value,
-            format: formatEl.value
-          })
+          headers,
+          body: JSON.stringify({ text, voice, format })
         });
 
         if (!res.ok) {
-          const maybeJson = await res.text();
-          throw new Error(`HTTP ${res.status}: ${maybeJson}`);
+          const msg = await res.text();
+          throw new Error(`API error ${res.status}: ${msg}`);
         }
 
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);
-        player.src = url;
-        player.play().catch(() => {}); // some browsers block autoplay
-        downloadLink.href = url;
-        downloadLink.download = `tts-output.${formatEl.value}`;
-        downloadLink.style.display = 'inline-block';
-        statusEl.textContent = "Done.";
-      } catch (err) {
-        console.error(err);
-        statusEl.textContent = "Failed: " + err.message;
-      } finally {
-        goBtn.disabled = false;
+        el("player").src = url;
+        el("player").play();
+        el("status").textContent = "Ready ✔";
+      } catch (e) {
+        console.error(e);
+        el("status").textContent = e.message;
+        alert(e.message);
       }
-    });
+    };
   </script>
 </body>
 </html>
