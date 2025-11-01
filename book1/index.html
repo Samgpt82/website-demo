@@ -3,49 +3,42 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>When Geography Shaped Destiny — Podcast</title>
+  <title>TTS App Embed</title>
+  <meta name="description" content="Embedded Streamlit TTS app" />
   <style>
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;line-height:1.6;background:#0b0e13;color:#e9eef5}
-    .wrap{max-width:900px;margin:0 auto;padding:28px}
-    header{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
-    header img{width:140px;height:140px;object-fit:cover;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
-    h1{margin:0;font-size:clamp(24px,4vw,40px);letter-spacing:.2px}
-    .tag{opacity:.8;margin-top:4px}
-    .card{background:#121722;border:1px solid #1f2a3a;border-radius:16px;padding:18px 18px 14px;margin:18px 0}
-    .card h3{margin:0 0 8px;font-size:20px}
-    audio{width:100%;margin-top:8px}
-    a{color:#7cc0ff;text-decoration:none}
-    a:hover{text-decoration:underline}
-    footer{opacity:.7;margin-top:28px;font-size:14px}
+    html, body { height: 100%; margin: 0; }
+    .wrap { display: grid; grid-template-rows: auto 1fr; height: 100%; }
+    header { padding: 12px 16px; border-bottom: 1px solid #eee; font: 600 16px system-ui, sans-serif; }
+    .frame { width: 100%; height: 100%; border: 0; }
+    .fallback { display:none; padding: 16px; font: 14px/1.5 system-ui, sans-serif; }
+    .fallback a { color: #0b5; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <header>
-      <img src="cover.png" alt="Podcast Cover">
-      <div>
-        <h1>When Geography Shaped Destiny</h1>
-        <div class="tag">A cinematic summary of <em>Guns, Germs, and Steel</em></div>
-      </div>
-    </header>
-
-    <div class="card">
-      <h3>Episode 1 — Why People Farmed & How Plants Changed</h3>
-      <p>From foraging to farming: five forces that reshaped humanity—and the unequal head starts that followed.</p>
-      <audio controls preload="metadata" src="episode01.mp3"></audio>
-      <div><a href="notes-ep01.html">Show notes</a></div>
+    <header>Embedded TTS App</header>
+    <iframe
+      id="appFrame"
+      class="frame"
+      src="https://dpg24ic69csadeaqkmdpqk.streamlit.app/?embedded=true"
+      title="TTS App"
+      loading="eager"
+      allow="autoplay; clipboard-write"
+      referrerpolicy="strict-origin-when-cross-origin"
+      sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-downloads">
+    </iframe>
+    <div id="fallback" class="fallback">
+      <p>The embedded app couldn't load here. This is usually due to network filters or blocked third‑party cookies.</p>
+      <p><strong>Open the app directly:</strong> <a href="https://dpg24ic69csadeaqkmdpqk.streamlit.app/?embedded=true" target="_blank" rel="noopener">https://dpg24ic69csadeaqkmdpqk.streamlit.app/?embedded=true</a></p>
     </div>
-
-    <div class="card">
-      <h3>Episode 2 — The Geography of Food & Domestication</h3>
-      <p>How latitude, species, and diffusion patterns forged world history long before empires did.</p>
-      <audio controls preload="metadata" src="episode02.mp3"></audio>
-      <div><a href="notes-ep02.html">Show notes</a></div>
-    </div>
-
-    <footer>
-      © 2025 Your Name • Hosted on GitHub Pages • <a href="mailto:you@example.com">Contact</a>
-    </footer>
   </div>
+
+  <script>
+    // If the iframe doesn't finish loading in 5 seconds, show a fallback link.
+    const iframe = document.getElementById('appFrame');
+    const fallback = document.getElementById('fallback');
+    let timer = setTimeout(() => { fallback.style.display = 'block'; }, 5000);
+    iframe.addEventListener('load', () => { clearTimeout(timer); });
+  </script>
 </body>
 </html>
