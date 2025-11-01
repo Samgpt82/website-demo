@@ -1,103 +1,38 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Text → Speech</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TTS App Embed</title>
+  <meta name="description" content="Embedded Streamlit TTS app" />
   <style>
-    body{font-family:system-ui, Arial; max-width:720px; margin:40px auto; padding:0 16px}
-    textarea{width:100%; height:160px}
-    .row{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
-    button{padding:10px 16px; cursor:pointer}
-    #status{margin-top:8px; color:#666}
-    audio{width:100%; margin-top:16px}
+    html, body { height: 100%; margin: 0; }
+    .app-frame {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+    @media (max-width: 600px) {
+      .app-frame { min-height: 600px; }
+    }
   </style>
 </head>
 <body>
-  <h1>Text → Audio</h1>
+  <iframe
+    class="app-frame"
+    src="https://dpg24ic69csadeaqkmdpqk.streamlit.app/"
+    title="TTS App"
+    loading="eager"
+    allow="autoplay; clipboard-write">
+  </iframe>
 
-  <label>Text</label>
-  <textarea id="text" placeholder="Type something to synthesize..."></textarea>
-
-  <div class="row">
-    <label for="voice">Voice:</label>
-    <select id="voice">
-      <option value="alloy" selected>alloy</option>
-      <option value="verse">verse</option>
-      <option value="aria">aria</option>
-    </select>
-
-    <label for="format">Format:</label>
-    <select id="format">
-      <option value="mp3" selected>mp3</option>
-      <option value="wav">wav</option>
-    </select>
-
-    <button id="go">Generate</button>
-  </div>
-
-  <div id="status"></div>
-
-  <audio id="player" controls></audio>
-  <p><a id="download" href="#" download="tts-output.mp3" style="display:none">Download audio</a></p>
-
-  <script>
-    // If you use a proxy (recommended), point to it:
-    const API_URL = "/api/tts"; 
-    // If you skip the proxy (NOT recommended), use your Render URL:
-    // const API_URL = "https://website-dcgu.onrender.com/tts";
-
-    const textEl = document.getElementById('text');
-    const voiceEl = document.getElementById('voice');
-    const formatEl = document.getElementById('format');
-    const goBtn = document.getElementById('go');
-    const statusEl = document.getElementById('status');
-    const player = document.getElementById('player');
-    const downloadLink = document.getElementById('download');
-
-    goBtn.addEventListener('click', async () => {
-      const text = textEl.value.trim();
-      if (!text) { alert("Please enter some text."); return; }
-
-      statusEl.textContent = "Generating… (first request may be slow if server is cold)";
-      goBtn.disabled = true;
-      player.src = "";
-      downloadLink.style.display = 'none';
-
-      try {
-        const res = await fetch(API_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-            // DO NOT put secrets like X-APP-KEY here on a public site.
-          },
-          body: JSON.stringify({
-            text,
-            voice: voiceEl.value,
-            format: formatEl.value
-          })
-        });
-
-        if (!res.ok) {
-          const maybeJson = await res.text();
-          throw new Error(`HTTP ${res.status}: ${maybeJson}`);
-        }
-
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-        player.src = url;
-        player.play().catch(() => {}); // some browsers block autoplay
-        downloadLink.href = url;
-        downloadLink.download = `tts-output.${formatEl.value}`;
-        downloadLink.style.display = 'inline-block';
-        statusEl.textContent = "Done.";
-      } catch (err) {
-        console.error(err);
-        statusEl.textContent = "Failed: " + err.message;
-      } finally {
-        goBtn.disabled = false;
-      }
-    });
-  </script>
+  <noscript>
+    <p>This page requires JavaScript to display the embedded app.
+       You can open it directly here:
+       <a href="https://dpg24ic69csadeaqkmdpqk.streamlit.app/" target="_blank" rel="noopener">Open TTS App</a>.
+    </p>
+  </noscript>
 </body>
 </html>
